@@ -1,8 +1,9 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-10 02:36:04 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-10 02:37:38 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
 Focal points for freebsdfrau:
+- Integrate CFLAGS for buildworld (see README-FRAUBSD)
 - Bring in derivative kernel config (SYNAPSE)
 - Stage syslinux-6.03 for release process
 - Stage isohybrid.pl for release process
