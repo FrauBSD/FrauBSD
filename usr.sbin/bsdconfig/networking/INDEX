@@ -50,6 +50,9 @@ menu_selection="defaultrouter|defaultrouter"
 menu_selection="hostname|hostname"
 menu_selection="nameservers|nameservers"
 menu_selection="netdev|devices"
+menu_selection="wireless|wlanconfig"
+menu_selection="wlan|wlanconfig"
+menu_selection="wifi|wlanconfig"
 
 #
 # ------------ Items below this line do NOT need i18n translation ------------
