@@ -1,4 +1,4 @@
-# $FrauBSD: sysconf/Makefile 2016-01-09 17:04:26 -0800 freebsdfrau $
+# $FrauBSD: sbin/sysconf/Makefile 2016-01-09 17:05:55 -0800 freebsdfrau $
 # $FreeBSD$
 
 PROG=	sysconf

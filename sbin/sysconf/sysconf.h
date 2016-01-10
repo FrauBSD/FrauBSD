@@ -23,48 +23,32 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $FrauBSD: sysconf/conf.h 2016-01-09 17:04:26 -0800 freebsdfrau $
+ * $FrauBSD: sbin/sysconf/sysconf.h 2016-01-09 17:05:55 -0800 freebsdfrau $
  * $FreeBSD$
  */
 
-#ifndef _CONF_H_
-#define _CONF_H_
+#ifndef _SYSCONF_H_
+#define _SYSCONF_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <figpar.h>
-#include <sys/queue.h>
+#include <sys/types.h>
 
-/*
- * Anatomy of a config file option.
- */
-struct option {
-	SLIST_ENTRY(option) entries;
+/* Simple macros */
+#ifndef TRUE
+#define	TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 
-	char *name;	/* option name */
-	char *value;	/* option value */
-};
-
-/* FreeBSD loader.conf(5) characteristics */
-#define LOADER_DEFAULTS		"/boot/defaults/loader.conf"
-#define ENV_LOADER_DEFAULTS	"LOADER_DEFAULTS"
-#define VAR_LOADER_CONF_FILES	"loader_conf_files"
-
-/* FreeBSD sysctl.conf(5) characteristics */
-#define SYSCTL_CONF		"/etc/sysctl.conf"
-#define SYSCTL_CONF_LOCAL	"/etc/sysctl.conf.local"
-
-/* Environment for this utility */
-#define ENV_SYS_CONFS	"SYS_CONFS"
-
-/* Function prototypes */
-struct option *	sysconf_get_option(const char *directive);
-int		parse_sysconf_all(void);
+/* Extra display information */
+extern char *pgm;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* !_CONF_H_ */
+#endif /* !_FDPV_H_ */

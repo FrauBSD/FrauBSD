@@ -26,7 +26,7 @@
 
 #include <sys/cdefs.h>
 #ifdef __FrauBSD__
-__FBSDID("$FrauBSD: sysconf/conf.c 2016-01-09 17:04:26 -0800 freebsdfrau $");
+__FBSDID("$FrauBSD: sbin/sysconf/conf.c 2016-01-09 17:05:55 -0800 freebsdfrau $");
 #else
 __FBSDID("$FreeBSD$");
 #endif
