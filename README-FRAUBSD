@@ -1,4 +1,4 @@
-# $FrauBSD: README-FRAUBSD 2016-01-10 01:25:34 -0800 freebsdfrau $
+# $FrauBSD: README-FRAUBSD 2016-01-10 02:39:12 -0800 freebsdfrau $
 
 Welcome to the FrauBSD Project!
 
@@ -17,5 +17,5 @@ Which will ensure the FrauBSD keyword is expanded/updated for each commit.
 To compile FrauBSD base:
 
 	env CFLAGS=-D__FrauBSD__ make buildworld
-	env CFLAGS=-D__FrauBSD__ make release
+	make release
 
