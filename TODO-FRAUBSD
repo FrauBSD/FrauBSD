@@ -1,0 +1,18 @@
+# $FrauBSD: TODO-FRAUBSD 2016-01-10 02:36:04 -0800 freebsdfrau $
+
+++ Top priorities for FrauBSD project ++
+
+Focal points for freebsdfrau:
+- Bring in derivative kernel config (SYNAPSE)
+- Stage syslinux-6.03 for release process
+- Stage isohybrid.pl for release process
+- Create configure script for release process
+- Create preflight script for developer commit setup
+- Write fsb_release and introduce /etc/freebsd_version
+- Develop versioning scheme
+- Complete interim works (bsdconfig wireless)
+- Start staging releases
+- Continue development of imported works (sysconf)
+- Start development on libcmb(3) + cmb(1)
+- Start integration with zenity
+
