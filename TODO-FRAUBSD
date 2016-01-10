@@ -1,4 +1,4 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-10 02:37:38 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-10 04:20:34 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
@@ -11,7 +11,7 @@ Focal points for freebsdfrau:
 - Create preflight script for developer commit setup
 - Write fsb_release and introduce /etc/freebsd_version
 - Develop versioning scheme
-- Complete interim works (bsdconfig wireless)
+- Complete interim works (unfurl, bsdconfig wireless)
 - Start staging releases
 - Continue development of imported works (sysconf)
 - Start development on libcmb(3) + cmb(1)
