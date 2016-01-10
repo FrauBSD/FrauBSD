@@ -1,4 +1,4 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-10 04:20:34 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-10 05:23:32 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
@@ -15,5 +15,6 @@ Focal points for freebsdfrau:
 - Start staging releases
 - Continue development of imported works (sysconf)
 - Start development on libcmb(3) + cmb(1)
+- Create shstyle(9) manual
 - Start integration with zenity
 
