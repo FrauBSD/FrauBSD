@@ -1,0 +1,102 @@
+if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
+#
+# Copyright (c) 2014-2016 Devin Teske
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-15 01:19:44 -0800 freebsdfrau $
+# $FreeBSD$
+#
+############################################################ FUNCTIONS
+
+# f_float_divide [-n precision] [--] integer [/] divisor [var_to_set]
+#
+# Divide integer by divisor, producing a floating-point number with precision
+# decimal places.
+#
+# If $var_to_set is missing or NULL, output is to standard out.
+#
+f_float_divide()
+{
+	local __funcname=f_float_divide __np=2 __n=1
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		-n) shift 1 && __np="$1" ;;
+		-n?*) __np="${1#-n}" ;;
+		--) shift 1; break ;;
+		-[0-9]*) break ;;
+		-*) echo "$__funcname: Illegal option $1" >&2 ;;
+		*) break
+		esac
+		shift 1
+	done
+	local __remainder="${1:-0}" __divisor="${2:-1}" __var_to_set="$3"
+	[ "$__divisor" = / ] && __divisor="${3:-1}" __var_to_set="$4"
+
+	# Currently only whole integers allowed as input (trim floats)
+	__remainder="${__remainder%%[!-0-9]*}"
+	__divisor="${__divisor%%[!-0-9]*}"
+	: ${__remainder:=0} ${__divisor:=1}
+	[ $__divisor -ne 0 ] || __divisor=1 # Prevent division-by-zero
+
+	local __quotient=$(( $__remainder / $__divisor )) __floatnum
+	if [ $__quotient -eq 0 ]; then
+		if [ $__remainder -lt 0 -a $__divisor -ge 0 ] ||
+		   [ $__divisor -lt 0 -a $__remainder -ge 0 ]
+		then
+			__quotient="-$__quotient"
+		fi
+	fi
+	[ $__np -gt 0 ] && __quotient=$__quotient.
+	while [ $__n -le $__np ]; do
+		__remainder=$(( $__remainder % $__divisor * 10 ))
+		__floatnum=$(( $__remainder / $__divisor ))
+		__quotient=$__quotient${__floatnum#-}
+		__n=$(( $__n + 1 ))
+	done
+	__remainder=$(( $__remainder % $__divisor * 10 ))
+	if [ $(( $__remainder / $__divisor )) -ge 5 ]; then # Round up
+		local __qi=${__quotient%%.*} __qd=${__quotient#*.}
+		local __il=${#__qi} __sub=
+		[ $__qi -gt 0 ] || __qi=-1
+		local __qe=$(( ${__qi#-}$__qd + 1 ))
+		[ $(( ${#__qe} + 1 )) -eq ${#__quotient} ] ||
+			__il=$(( $__il + 1 ))
+		__quotient=$__qe
+		while [ ${#__quotient} -gt $__il ]; do
+			__quotient="${__quotient%?}"
+		done
+		while [ $__il -gt 0 ]; do
+			__sub="$__sub?" __il=$(( $__il - 1 ))
+		done
+		__quotient="$__quotient.${__qe#$__sub}"
+		[ $__qi -gt 0 ] || __quotient=0${__quotient#1}
+	fi
+	if [ "$__var_to_set" ]; then
+		setvar "$__var_to_set" "$__quotient"
+	else
+		echo "$__quotient"
+	fi
+}
+
+fi # ! $_FLOAT_SUBR
