@@ -1,13 +1,26 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-10 05:42:30 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-15 01:18:16 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
 Focal points for freebsdfrau:
 - Integrate CFLAGS for buildworld (see README-FRAUBSD)
+- Rewrite bsdinstall (usr.sbin/bsdinstall2)
 - Bring in derivative kernel config (SYNAPSE)
 - Add pident tool (wrapper to print ident(1) summary for directories)
 - Stage syslinux-6.03 for release process
 - Stage isohybrid.pl for release process
+- Bring back mfsroot
+- Merge 32-bit and 64-bit architectures together into single installer
+- Import htt (x86 ASM in a C utility to probe HyperThreading support)
+- Import x86_64 (x86 ASM in a C utility to probe [HAMMER] CPU Longmode)
+- Import rescue_mfsroot
+- Import WriteImage.applescript
+- Import iso2 tools
+- Import pxe-config and add support for FrauBSD install media layout
+- Generate anyboot mfsroot image, universal installer shim
+- Import host_rebuild as a replacement for freebsd-update
+- Generate rebuild_crunch release infrastructure
+- Import pkgbase and finish MANIFEST API
 - Create configure script for release process
 - Create preflight script for developer commit setup
 - Write fsb_release and introduce /etc/freebsd_version
