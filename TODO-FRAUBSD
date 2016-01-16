@@ -1,4 +1,4 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-15 01:33:05 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-16 09:00:45 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
@@ -22,6 +22,7 @@ Focal points for freebsdfrau:
 - Import host_rebuild as a replacement for freebsd-update
 - Generate rebuild_crunch release infrastructure
 - Import pkgbase and finish MANIFEST API
+- Import beadm
 - Create configure script for release process
 - Create preflight script for developer commit setup
 - Write fsb_release and introduce /etc/freebsd_version
