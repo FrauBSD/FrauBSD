@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-16 09:54:18 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-16 13:14:38 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -80,7 +80,19 @@ f_float_divide()
 	__remainder="${__remainder%%[!-0-9]*}"
 	__divisor="${__divisor%%[!-0-9]*}"
 	: ${__remainder:=0} ${__divisor:=1}
-	[ $__divisor -ne 0 ] || __divisor=1 # Prevent division-by-zero
+	if [ $__remainder -eq 0 ] 2> /dev/null; then
+		: simply testing for integer overflow
+	elif [ $? -eq 2 ]; then
+		echo "$__funcname: $__remainder: out of range" >&2
+		return $?
+	fi
+	if [ $__divisor -eq 0 ] 2> /dev/null; then
+		echo "$__funcname: $__remainder/$__divisor: division by 0" >&2
+		return 1
+	elif [ $? -eq 2 ]; then
+		echo "$__funcname: $__divisor: out of range" >&2
+		return $?
+	fi
 
 	local __quotient=$(( $__remainder / $__divisor )) __floatnum
 	if [ $__quotient -eq 0 ]; then
@@ -98,12 +110,29 @@ f_float_divide()
 		__n=$(( $__n + 1 ))
 	done
 	__remainder=$(( $__remainder % $__divisor * 10 ))
+	local round=
 	if [ $(( $__remainder / $__divisor )) -ge 5 ]; then # Round up
 		local __qi=${__quotient%%$FLOAT_DECIMAL_POINT*}
 		local __qd=${__quotient#*$FLOAT_DECIMAL_POINT}
+		local __qe=${__qi#-}$__qd}
+		# Test for integer overflow before attempting to round
+		if [ $__qe -eq 0 ] 2> /dev/null; then
+			round=1
+		elif [ $? -eq 1 ]; then
+			round=1
+		fi
+	fi
+	if [ "$round" ]; then
 		local __il=${#__qi} __sub=
 		[ $__qi -gt 0 ] || __qi=-1
-		local __qe=$(( ${__qi#-}$__qd + 1 ))
+		__qe=$(( $__qe + 1 ))
+		if [ $__qe -eq 0 ] 2> /dev/null; then
+			: testing for integer overflow
+		elif [ $? -ne 1 ]; then
+			round=
+		fi
+	fi
+	if [ "$round" ]; then
 		[ $(( ${#__qe} + 1 )) -eq ${#__quotient} ] ||
 			__il=$(( $__il + 1 ))
 		__quotient=$__qe
