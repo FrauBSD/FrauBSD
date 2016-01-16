@@ -24,9 +24,27 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-15 01:19:44 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-16 09:53:23 -0800 freebsdfrau $
 # $FreeBSD$
 #
+############################################################ GLOBALS
+
+#
+# Decimal point (locale specific)
+#
+FLOAT_DECIMAL_POINT=$(
+	export LC_ALL LC_NUMERIC
+	locale -k decimal_point 2> /dev/null
+)
+case "$FLOAT_DECIMAL_POINT" in
+*=\"?\")
+	FLOAT_DECIMAL_POINT="${FLOAT_DECIMAL_POINT##*=?}"
+	FLOAT_DECIMAL_POINT="${FLOAT_DECIMAL_POINT%?}" ;;
+*)
+	FLOAT_DECIMAL_POINT=
+esac
+: ${FLOAT_DECIMAL_POINT:=.} # Use C locale default as fall-back
+
 ############################################################ FUNCTIONS
 
 # f_float_divide [-n precision] [--] integer [/] divisor [var_to_set]
@@ -67,7 +85,7 @@ f_float_divide()
 			__quotient="-$__quotient"
 		fi
 	fi
-	[ $__np -gt 0 ] && __quotient=$__quotient.
+	[ $__np -gt 0 ] && __quotient=$__quotient$FLOAT_DECIMAL_POINT
 	while [ $__n -le $__np ]; do
 		__remainder=$(( $__remainder % $__divisor * 10 ))
 		__floatnum=$(( $__remainder / $__divisor ))
@@ -76,7 +94,8 @@ f_float_divide()
 	done
 	__remainder=$(( $__remainder % $__divisor * 10 ))
 	if [ $(( $__remainder / $__divisor )) -ge 5 ]; then # Round up
-		local __qi=${__quotient%%.*} __qd=${__quotient#*.}
+		local __qi=${__quotient%%$FLOAT_DECIMAL_POINT*}
+		local __qd=${__quotient#*$FLOAT_DECIMAL_POINT}
 		local __il=${#__qi} __sub=
 		[ $__qi -gt 0 ] || __qi=-1
 		local __qe=$(( ${__qi#-}$__qd + 1 ))
@@ -89,7 +108,7 @@ f_float_divide()
 		while [ $__il -gt 0 ]; do
 			__sub="$__sub?" __il=$(( $__il - 1 ))
 		done
-		__quotient="$__quotient.${__qe#$__sub}"
+		__quotient="$__quotient$FLOAT_DECIMAL_POINT${__qe#$__sub}"
 		[ $__qi -gt 0 ] || __quotient=0${__quotient#1}
 	fi
 	if [ "$__var_to_set" ]; then
