@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 17:05:59 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 17:06:48 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -86,14 +86,14 @@ f_float_divide()
 		: simply testing for integer overflow
 	elif [ $? -eq 2 ]; then
 		echo "$__funcname: $__remainder: out of range" >&2
-		return $?
+		return 1
 	fi
 	if [ $__divisor -eq 0 ] 2> /dev/null; then
 		echo "$__funcname: $__remainder/$__divisor: division by 0" >&2
 		return 1
 	elif [ $? -eq 2 ]; then
 		echo "$__funcname: $__divisor: out of range" >&2
-		return $?
+		return 1
 	fi
 
 	#
