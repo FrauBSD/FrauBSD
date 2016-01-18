@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:20:03 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:22:08 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -62,10 +62,14 @@ f_float()
 {
 	local __funcname=f_float
 	local __f_float_np=
+	local __f_float_round=
 	while [ $# -gt 0 ]; do
 		case "$1" in
 		-n) shift 1 && __f_float_np="$1" ;;
 		-n?*) __f_float_np="${1#-n}" ;;
+		-r) __f_float_round=1 ;;
+		-rn) __f_float_round=1; shift 1 && __f_float_np="$1" ;;
+		-rn?*) __f_float_round=1; __f_float_np="${1#-rn}" ;;
 		--) shift 1; break ;;
 		-[0-9]*) break ;;
 		-*) echo "$__funcname: Illegal option $1" >&2
@@ -366,11 +370,14 @@ f_float_round_up()
 #
 f_float_divide()
 {
-	local __funcname=f_float_divide __np=2 __n=1
+	local __funcname=f_float_divide __np=2 __n=1 __round=
 	while [ $# -gt 0 ]; do
 		case "$1" in
 		-n) shift 1 && __np="$1" ;;
 		-n?*) __np="${1#-n}" ;;
+		-r) __round=1 ;;
+		-rn) __round=1; shift 1 && __np="$1" ;;
+		-rn?*) __round=1; __np="${1#-rn}" ;;
 		--) shift 1; break ;;
 		-[0-9]*) break ;;
 		-*) echo "$__funcname: Illegal option $1" >&2
@@ -428,11 +435,13 @@ f_float_divide()
 	#
 	# Round up if necessary
 	#
-	__remainder=$(( $__remainder % $__divisor * 10 ))
-	if [ $(( $__remainder / $__divisor )) -ge 5 ]; then
-		local __f_float_divide_float
-		f_float_round_up $__quotient __f_float_divide_float &&
-			__quotient="$__f_float_divide_float"
+	if [ "$__round" ]; then
+		__remainder=$(( $__remainder % $__divisor * 10 ))
+		if [ $(( $__remainder / $__divisor )) -ge 5 ]; then
+			local __f_float_divide_float
+			f_float_round_up $__quotient __f_float_divide_float &&
+				__quotient="$__f_float_divide_float"
+		fi
 	fi
 
 	#
