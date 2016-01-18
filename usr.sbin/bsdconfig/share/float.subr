@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 17:11:37 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 17:12:21 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -51,6 +51,219 @@ esac
 : ${FLOAT_DECIMAL_POINT:=.} # Use C locale default as fall-back
 
 ############################################################ FUNCTIONS
+
+# f_float_add float [+] float [var_to_set]
+#
+# Add two floats.
+#
+# If $var_to_set is missing or NULL, output is to standard out.
+#
+f_float_add()
+{
+	local __funcname=f_float_add
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		-[0-9]*) break ;;
+		-*) echo "$__funcname: Illegal option $1" >&2 ;;
+		*) break
+		esac
+		shift 1
+	done
+	local __float1="${1:-0}" __float2="${2:-0}" __var_to_set="$3"
+	[ "$__float2" = + ] && __float2="${3:-0}" __var_to_set="$4"
+
+	#
+	# Sanitize float inputs
+	#
+	__float1="${__float1%%[!-0-9$FLOAT_DECIMAL_POINT]*}"
+	__float2="${__float2%%[!-0-9$FLOAT_DECIMAL_POINT]*}"
+
+	#
+	# Parse float inputs
+	#
+	local __fi1 __fd1=
+	local __fi2 __fd2=
+	case $__float1 in
+	*$FLOAT_DECIMAL_POINT*)
+		__fi1=${__float1%%$FLOAT_DECIMAL_POINT*}
+		__fd1=${__float1#*$FLOAT_DECIMAL_POINT}
+		;;
+	*)
+		__fi1=$__float1
+	esac
+	while [ "$__fi1" != "${__fi1#0}" ]; do
+		__fi1=${__fi1#0}
+	done
+	: ${__fi1:=0}
+	case $__float2 in
+	*$FLOAT_DECIMAL_POINT*)
+		__fi2=${__float2%%$FLOAT_DECIMAL_POINT*}
+		__fd2=${__float2#*$FLOAT_DECIMAL_POINT}
+		;;
+	*)
+		__fi2=$__float2
+	esac
+	while [ "$__fi2" != "${__fi2#0}" ]; do
+		__fi2=${__fi2#0}
+	done
+	: ${__fi2:=0}
+
+	#
+	# Test for overflow on integar part of float inputs
+	#
+	if [ $__fi1 -ne 0 ] 2> /dev/null; then
+		: no overflow
+	elif [ $? -gt 1 ]; then
+		echo "$__funcname: $__float1: out of range" >&2
+		[ "$__var_to_set" ] && setvar "$__var_to_set" ""
+		return $FAILURE
+	fi
+	if [ $__fi2 -ne 0 ] 2> /dev/null; then
+		: no overflow
+	elif [ $? -gt 1 ]; then
+		echo "$__funcname: $__float2: out of range" >&2
+		[ "$__var_to_set" ] && setvar "$__var_to_set" ""
+		return $FAILURE
+	fi
+
+	#
+	# Perform integer part of floating-point calculation
+	#
+	local __sumi=$(( $__fi1 + $__fi2 )) __overflow=
+	if [ $__fi1 -gt 0 ]; then
+		[ $__fi2 -gt 0 -a $__sumi -lt 0 ] && __overflow=1
+	elif [ $__fi2 -lt 0 -a $__sumi -gt 0 ]; then
+		__overflow=1
+	fi
+	if [ "$__overflow" ]; then
+		echo "$__funcname: $__float1 + $__float2:" \
+		     "result out of range" >&2
+		[ "$__var_to_set" ] && setvar "$__var_to_set" ""
+		return $FAILURE
+	fi
+
+	#
+	# Perform decimal part of floating-point calculation
+	#
+	local __sumd=
+	if [ "$__fd1" -o "$__fd2" ]; then
+		# Remove leading [common] zeroes
+		local __lpad=0
+		: ${__fd1:=0} ${__fd2:=0}
+		while [ "$__fd1" != "${__fd1#0}" -a \
+		        "$__fd2" != "${__fd2#0}" ]
+		do
+			__lpad=$(( $__lpad + 1 ))
+			__fd1=${__fd1#0}
+			__fd2=${__fd2#0}
+		done
+		: ${__fd1:=0} ${__fd2:=0}
+
+		# Align parts to same order of magnitude
+		while [ ${#__fd1} -lt ${#__fd2} ]; do __fd1=${__fd1}0; done
+		while [ ${#__fd2} -lt ${#__fd1} ]; do __fd2=${__fd2}0; done
+
+		# Remove leading zeroes
+		while [ "$__fd1" != "${__fd1#0}" ]; do __fd1=${__fd1#0}; done
+		while [ "$__fd2" != "${__fd2#0}" ]; do __fd2=${__fd2#0}; done
+		: ${__fd1:=0} ${__fd2:=0}
+
+		# Remove trailing zeroes
+		while [ "$__fd1" != "${__fd1%0}" -a \
+		        "$__fd2" != "${__fd2%0}" ]
+		do
+			__fd1=${__fd1%0}
+			__fd2=${__fd2%0}
+		done
+		: ${__fd1:=0} ${__fd2:=0}
+
+		# Test for overflow
+		if [ $__fd1 -ne 0 ] 2> /dev/null; then
+			: no overflow
+		elif [ $? -gt 1 ]; then
+			echo "$__funcname: $__float1 + $__float2:" \
+			     "result out of range" >&2
+			[ "$__var_to_set" ] && setvar "$__var_to_set" ""
+			return $FAILURE
+		fi
+		if [ $__fd2 -ne 0 ] 2> /dev/null; then
+			: no overflow
+		elif [ $? -gt 1 ]; then
+			echo "$__funcname: $__float1 + $__float2:" \
+			     "result out of range" >&2
+			[ "$__var_to_set" ] && setvar "$__var_to_set" ""
+			return $FAILURE
+		fi
+
+		# Calculate expected radix count for sum
+		local __len
+		if [ ${#__fd1} -gt ${#__fd2} ]; then
+			__len=${#__fd1}
+		else
+			__len=${#__fd2}
+		fi
+
+		# Sum decimal parts and test for overflow
+		__sumd=$(( $__fd1 + $__fd2 ))
+		if [ $__sumd -lt 0 ]; then
+			echo "$__funcname: $__float1 + $__float2:" \
+			     "result out of range" >&2
+			[ "$__var_to_set" ] && setvar "$__var_to_set" ""
+			return $FAILURE
+		fi
+
+		# Increment integer part if new radix was generated
+		if [ ${#__sumd} -gt $__len ]; then
+			__lpad=$(( $__lpad - 1 ))
+			if [ $__lpad -lt 0 ]; then
+				__sumd=${__sumd#1}
+				__sumi=$(( $__sumi + 1 ))
+			fi
+			__overflow=
+			if [ $__fi1 -gt 0 ]; then
+				[ $__fi2 -gt 0 -a $__sumi -lt 0 ] &&
+					__overflow=1
+			elif [ $__fi2 -lt 0 -a $__sumi -gt 0 ]; then
+				__overflow=1
+			fi
+			if [ "$__overflow" ]; then
+				echo "$__funcname: $__float1 + $__float2:" \
+				     "result out of range" >&2
+				[ "$__var_to_set" ] &&
+					setvar "$__var_to_set" ""
+				return $FAILURE
+			fi
+		fi
+
+		# Remove trailing zeroes
+		while [ "$__sumd" != "${__sumd%0}" ]; do
+			__sumd=${__sumd%0}
+		done
+		: ${__sumd:=0}
+
+		# Restore leading zeroes
+		if [ $__sumd -gt 0 ]; then
+			while [ $__lpad -gt 0 ]; do
+				__sumd=0$__sumd
+				__lpad=$(( $__lpad - 1 ))
+			done
+		fi
+	fi
+
+	#
+	# Combine integer and decimal parts and return result
+	#
+	__sum=$__sumi${__sumd:+$FLOAT_DECIMAL_POINT}$__sumd
+
+	#
+	# Return result
+	#
+	if [ "$__var_to_set" ]; then
+		setvar "$__var_to_set" "$__sum"
+	else
+		echo "$__sum"
+	fi
+}
 
 # f_float_divide [-n precision] [--] integer [/] divisor [var_to_set]
 #
