@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:55:19 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-18 13:28:42 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -148,7 +148,7 @@ f_float_add()
 	: ${__fi2:=0}
 
 	#
-	# Test for overflow on integar part of float inputs
+	# Test for overflow on integer part of float inputs
 	#
 	if [ $__fi1 -ne 0 ] 2> /dev/null; then
 		: no overflow
