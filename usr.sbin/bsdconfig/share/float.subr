@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 18:37:16 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 18:38:04 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -51,6 +51,36 @@ esac
 : ${FLOAT_DECIMAL_POINT:=.} # Use C locale default as fall-back
 
 ############################################################ FUNCTIONS
+
+# f_float [OPTIONS] number OP number [var_to_set]
+#
+# Perform floating operation OP between two numbers.
+#
+# If $var_to_set is missing or NULL, output is to standard out.
+#
+f_float()
+{
+	local __funcname=f_float
+	local __f_float_np=
+	while [ $# -gt 0 ]; do
+		case "$1" in
+		-n) shift 1 && __f_float_np="$1" ;;
+		-n?*) __f_float_np="${1#-n}" ;;
+		--) shift 1; break ;;
+		-[0-9]*) break ;;
+		-*) echo "$__funcname: Illegal option $1" >&2
+		    return $FAILURE ;;
+		*) break
+		esac
+		shift 1
+	done
+	case "$2" in
+	+) f_float_add ${__f_float_np:+-n "$__f_float_np"} -- "$@" ;;
+	/) f_float_divide ${__f_float_np:+-n "$__f_float_np"} -- "$@" ;;
+	*) echo "$__funcname: unsupported arithmetic operator" >&2
+	   return $FAILURE
+	esac
+}
 
 # f_float_add [--] float [+] float [var_to_set]
 #
