@@ -1,9 +1,9 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-16 09:00:45 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-17 19:04:05 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
 Focal points for freebsdfrau:
-- Grow multiply, add, and subtract in bsdconfig `float.subr'
+- Grow multiply and subtract in bsdconfig `float.subr'
 - Integrate CFLAGS for buildworld (see README-FRAUBSD)
 - Rewrite bsdinstall (usr.sbin/bsdinstall2)
 - Bring in derivative kernel config (SYNAPSE)
