@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 17:11:04 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 17:11:37 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -123,40 +123,41 @@ f_float_divide()
 	# Round up if necessary
 	#
 	__remainder=$(( $__remainder % $__divisor * 10 ))
-	local round=
-	if [ $(( $__remainder / $__divisor )) -ge 5 ]; then # Round up
-		local __qi=${__quotient%%$FLOAT_DECIMAL_POINT*}
-		local __qd=${__quotient#*$FLOAT_DECIMAL_POINT}
-		local __qe=${__qi#-}$__qd}
-		# Test for integer overflow before attempting to round
-		if [ $__qe -eq 0 ] 2> /dev/null; then
-			round=1
-		elif [ $? -eq 1 ]; then
-			round=1
+	if [ $(( $__remainder / $__divisor )) -ge 5 ]; then
+		local __qi __qd __ql __ii=1 __overflow=
+		case "$__quotient" in
+		*$FLOAT_DECIMAL_POINT*)
+			__qi=${__quotient%%$FLOAT_DECIMAL_POINT*}
+			__qd=${__quotient#*$FLOAT_DECIMAL_POINT}
+			__ql=${#__qd}
+			;;
+		*)
+			__qi=$__quotient
+			__qd=
+		esac
+		if [ "$__qd" ]; then
+			__qd=$(( __qd + 1 ))
+			if [ $__qd -lt 0 ]; then
+				__overflow=1
+			else
+				[ ${#__qd} -ne $__ql ] || __ii=
+			fi
 		fi
-	fi
-	if [ "$round" ]; then
-		local __il=${#__qi} __sub=
-		[ $__qi -gt 0 ] || __qi=-1
-		__qe=$(( $__qe + 1 ))
-		if [ $__qe -eq 0 ] 2> /dev/null; then
-			: testing for integer overflow
-		elif [ $? -ne 1 ]; then
-			round=
+		if [ "$__ii" -a ! "$__overflow" ]; then
+			if [ $__qi -gt 0 ]; then
+				__qi=$(( $__qi + 1 ))
+				[ $__qi -gt 0 ] || __overflow=1
+			else
+				__qi=$(( $__qi - 1 ))
+				[ $__qi -lt 0 ] || __overflow=1
+			fi
 		fi
-	fi
-	if [ "$round" ]; then
-		[ $(( ${#__qe} + 1 )) -eq ${#__quotient} ] ||
-			__il=$(( $__il + 1 ))
-		__quotient=$__qe
-		while [ ${#__quotient} -gt $__il ]; do
-			__quotient="${__quotient%?}"
-		done
-		while [ $__il -gt 0 ]; do
-			__sub="$__sub?" __il=$(( $__il - 1 ))
-		done
-		__quotient="$__quotient$FLOAT_DECIMAL_POINT${__qe#$__sub}"
-		[ $__qi -gt 0 ] || __quotient=0${__quotient#1}
+		if [ "$__overflow" ]; then
+			echo "$__funcname: floating point conversion overflow" \
+			     "(unable to round)" >&2
+		else
+			__quotient="$__qi${__qd:+$FLOAT_DECIMAL_POINT}$__qd"
+		fi
 	fi
 
 	#
