@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:23:15 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:26:31 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -364,10 +364,10 @@ f_float_round_up()
 	fi
 }
 
-# f_float_divide [-n precision] [--] integer [/] divisor [var_to_set]
+# f_float_divide [-r] [-n precision] [--] integer [/] divisor [var_to_set]
 #
 # Divide integer by divisor, producing a floating-point number with precision
-# decimal places.
+# decimal places. If the `-r' flag is given, round up to the nearest tenth.
 #
 # If $var_to_set is missing or NULL, output is to standard out.
 #
