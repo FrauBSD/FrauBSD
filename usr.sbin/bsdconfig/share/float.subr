@@ -24,7 +24,7 @@ if [ ! "$_FLOAT_SUBR" ]; then _FLOAT_SUBR=1
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:22:08 -0800 freebsdfrau $
+# $FrauBSD: usr.sbin/bsdconfig/share/float.subr 2016-01-17 20:23:15 -0800 freebsdfrau $
 # $FreeBSD$
 #
 ############################################################ INCLUDES
@@ -78,12 +78,15 @@ f_float()
 		esac
 		shift 1
 	done
+	local __f_float_op=unknown
 	case "$2" in
-	+) f_float_add ${__f_float_np:+-n "$__f_float_np"} -- "$@" ;;
-	/) f_float_divide ${__f_float_np:+-n "$__f_float_np"} -- "$@" ;;
+	+) __f_float_op=add ;;
+	/) __f_float_op=divide ;;
 	*) echo "$__funcname: unsupported arithmetic operator" >&2
 	   return $FAILURE
 	esac
+	eval f_float_$__f_float_op ${__f_float_np:+-n \"\$__f_float_np\"} \
+		${__f_float_round:+-r} -- \"\$@\"
 }
 
 # f_float_add [--] float [+] float [var_to_set]
