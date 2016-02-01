@@ -1,4 +1,4 @@
-# $FrauBSD: TODO-FRAUBSD 2016-01-17 19:04:45 -0800 freebsdfrau $
+# $FrauBSD: TODO-FRAUBSD 2016-01-31 17:34:33 -0800 freebsdfrau $
 
 ++ Top priorities for FrauBSD project ++
 
@@ -26,11 +26,15 @@ Focal points for freebsdfrau:
 - Import beadm
 - Create configure script for release process
 - Create preflight script for developer commit setup
+- Create /bin/rcv -- /etc/rc wrapper for visualizing boot with dpv(3)
+- Prototype belle programming language
+- Replace /bin/sh with belle interpreter
 - Write fsb_release and introduce /etc/freebsd_version
 - Develop versioning scheme
 - Complete interim works (unfurl, bsdconfig wireless)
 - Start staging releases
 - Continue development of imported works (sysconf)
+- Import combinatoric generators
 - Start development on libcmb(3) + cmb(1)
 - Create shstyle(9) manual
 - Start integration with zenity
