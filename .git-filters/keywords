@@ -109,7 +109,7 @@ for file in "$@"; do
 	else
 		for keyword in $KEYWORDS; do
 			eval value=\"\$_$keyword\"
-			eval $keyword="\"\\\$$keyword: $value \\\$\""
+			eval $keyword=\"\\\$$keyword:\ $value\ \\\$\"
 		done
 	fi
 
@@ -176,6 +176,6 @@ done
 #
 # $Copyright: 2015 The FrauBSD Project. All rights reserved. $
 #
-# $FrauBSD: .git-filters/keywords 2017-07-05 19:55:44 -0700 freebsdfrau $
+# $FrauBSD: .git-filters/keywords 2017-07-05 19:56:55 -0700 freebsdfrau $
 #
 ################################################################################
